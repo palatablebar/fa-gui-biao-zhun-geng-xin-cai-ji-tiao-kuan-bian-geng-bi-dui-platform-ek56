@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from src.models.user import User
 from src.schemas.domain import ChangeConfirmRequest, PublishRequest
-from src.services import audit_service, change_service, diff_service, export_service
+from src.services import audit_service, change_service, export_service
 
 
 def pending_review(db: Session, limit: int = 50) -> dict:
@@ -45,9 +45,7 @@ def public_changes(db: Session) -> dict:
 
 
 def export(db: Session, run_id: uuid.UUID, fmt: str) -> Response:
-    run = diff_service.get_run(db, run_id)
-    payload = diff_service.serialize_run(run, db)
-    changes = diff_service.list_changes(db, run.id)
+    payload, changes = change_service.export_payload(db, run_id)
     filename = export_service.export_filename(payload, fmt)
     if fmt == "md":
         body = export_service.render_markdown(payload, changes)

@@ -23,6 +23,10 @@ def render_markdown(run_payload: dict, changes: list[dict]) -> str:
     lines.append(f"- 比对批次：`{run_payload.get('id')}`")
     lines.append(f"- 算法版本：`{run_payload.get('algorithm_version')}`")
     lines.append(
+        f"- 现行版本：`{run_payload.get('current_version_label') or '（尚未有现行版本）'}`"
+        "（导出时点，与客户视图一致）"
+    )
+    lines.append(
         f"- 结论：共 {run_payload.get('change_count', 0)} 条变更"
         f"（重大 {severity.get('major', 0)} / 一般 {severity.get('general', 0)} / 编辑性 {severity.get('editorial', 0)}）"
     )
@@ -32,6 +36,12 @@ def render_markdown(run_payload: dict, changes: list[dict]) -> str:
     )
     if run_payload.get("published_at"):
         lines.append(f"- 发布时间：{run_payload['published_at']}")
+        if run_payload.get("is_effective"):
+            lines.append("- 批次性质：现行版本发布（本批次目标版本即现行版本）")
+        else:
+            lines.append("- 批次性质：历史批次补充发布（现行版本未因此回退）")
+    else:
+        lines.append("- 状态：未发布草稿（含未确认内容，请勿直接发送客户）")
     if run_payload.get("publish_note"):
         lines.append(f"- 发布说明：{run_payload['publish_note']}")
     lines.append("")
@@ -51,6 +61,8 @@ def render_markdown(run_payload: dict, changes: list[dict]) -> str:
         )
     lines.append("")
     lines.append(f"共 {len(changes)} 条变更，其中已确认 {len(published)} 条。")
+    if run_payload.get("published_at"):
+        lines.append("本清单仅含已发布变更，与客户视图（/api/public/changes）指向同一有效版本。")
     lines.append("")
     lines.append("> 由 lawdelta 生成：条款对齐 + 变更分类结果均由后端算法落库，可复现。")
     return "\n".join(lines)
@@ -65,6 +77,7 @@ def render_csv(run_payload: dict, changes: list[dict]) -> str:
             "document_key", "base_version", "target_version", "clause_no_old", "clause_no_new",
             "change_type", "severity", "similarity", "edit_ratio", "industries",
             "impact_industries", "confirmed", "published", "reason", "impact_note",
+            "current_version",
         ]
     )
     for change in changes:
@@ -85,6 +98,7 @@ def render_csv(run_payload: dict, changes: list[dict]) -> str:
                 "1" if change.get("published") else "0",
                 (change.get("reason") or "").replace("\n", " "),
                 (change.get("impact_note") or "").replace("\n", " "),
+                run_payload.get("current_version_label", ""),
             ]
         )
     return buffer.getvalue()

@@ -27,11 +27,16 @@
             <span class="note__effective">
               发布于 {{ formatDateTime(group.published_at) }}
               <template v-if="group.effective_at"> · {{ formatDate(group.effective_at) }} 实施</template>
+              <template v-if="!group.is_effective && group.current_version_label">
+                · 现行版本 {{ group.current_version_label }}
+              </template>
             </span>
           </div>
         </div>
         <div class="note__stamps">
           <StatusSeal label="已发布" tone="seal" />
+          <StatusSeal v-if="group.is_effective" label="现行" tone="moss" />
+          <StatusSeal v-else label="历史批次" tone="ink" size="sm" />
           <div class="note__counts">
             <span class="num">{{ group.changes.length }}</span>
             <span class="label">条变更</span>

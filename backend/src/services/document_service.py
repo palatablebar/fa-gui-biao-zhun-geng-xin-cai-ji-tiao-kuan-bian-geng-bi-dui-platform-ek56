@@ -46,6 +46,22 @@ def get_document(db: Session, version_id: uuid.UUID) -> Document:
     return document
 
 
+def get_current_version(db: Session, document_key: str) -> Document | None:
+    """某部法规的现行版本。
+
+    正常情况下同一 document_key 至多一条 current（由部分唯一索引兜底）。
+    历史库若残留多条 current，取版本号最高的一条，保证「现行」口径唯一且向前。
+    强制从库里重读，避免会话里缓存的旧状态让并发发布判断失真。
+    """
+    return db.execute(
+        select(Document)
+        .where(Document.document_key == document_key, Document.status == "current")
+        .order_by(Document.version_no.desc())
+        .limit(1)
+        .execution_options(populate_existing=True)
+    ).scalar_one_or_none()
+
+
 def get_by_label(db: Session, document_key: str, version_label: str) -> Document | None:
     return db.execute(
         select(Document).where(

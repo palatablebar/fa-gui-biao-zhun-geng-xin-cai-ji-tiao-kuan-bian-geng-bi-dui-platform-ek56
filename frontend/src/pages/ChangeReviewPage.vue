@@ -78,7 +78,7 @@
           <div class="eyebrow">publish</div>
           <h2 class="publish__title">发布变更说明</h2>
           <p class="publish__desc">
-            发布后，已确认变更出现在客户视图，目标版本成为「现行」，旧版本自动转为历史。
+            发布后，已确认变更出现在客户视图；仅当目标版本高于现行版本时才推进现行，旧批次发布只补充历史说明。
           </p>
 
           <label class="publish__field">
@@ -120,7 +120,8 @@
             <ul>
               <li>批次状态为 succeeded</li>
               <li>至少 1 条变更已确认并标注影响行业</li>
-              <li>发布后不可回滚，只可再出新版本</li>
+              <li>现行版本只向更高版本推进，旧批次不会覆盖现行</li>
+              <li>同一批次重复发布不会新增或重复变更</li>
             </ul>
           </div>
         </div>
@@ -231,7 +232,9 @@ async function publish() {
   publishing.value = true
   try {
     const result = await publishRun(publishRunId.value, publishNote.value)
-    notice.value = `已发布 ${result.published_changes.length} 条变更说明，客户视图已可见。`
+    notice.value = result.promoted
+      ? `已发布 ${result.published_changes.length} 条变更说明，目标版本已推进为现行版本（${result.current_version_label}）。`
+      : `已发布 ${result.published_changes.length} 条变更说明（历史批次补充），现行版本仍为 ${result.current_version_label || '原版本'}，未被回退。`
     await reload()
   } catch (caught) {
     actionError.value = caught as ApiError

@@ -8,7 +8,7 @@ from __future__ import annotations
 import uuid
 from datetime import date, datetime
 
-from sqlalchemy import Date, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Date, DateTime, ForeignKey, Index, Integer, String, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -20,6 +20,14 @@ class Document(Base, TimestampMixin):
     __tablename__ = "documents"
     __table_args__ = (
         UniqueConstraint("document_key", "version_label", name="uq_document_version"),
+        # 硬约束：同一部法规至多一个现行版本（并发发布的最后兜底，业务侧另做单调推进判断）
+        Index(
+            "uq_documents_current_per_key",
+            "document_key",
+            unique=True,
+            postgresql_where=text("status = 'current'"),
+            sqlite_where=text("status = 'current'"),
+        ),
         {"schema": settings.db_schema},
     )
 

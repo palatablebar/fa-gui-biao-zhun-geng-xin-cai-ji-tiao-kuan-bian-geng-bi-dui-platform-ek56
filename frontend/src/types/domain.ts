@@ -148,9 +148,22 @@ export interface PublishedGroup {
   issuer: string
   base_label: string
   target_label: string
+  target_version_no: number
   published_at: string | null
   publish_note: string
   effective_at: string | null
+  current_version_label: string
+  current_version_no: number | null
+  is_effective: boolean
   changes: ChangeItem[]
   severity_counts: Record<string, number>
+}
+
+export interface PublishResult {
+  run: DiffRun
+  published_changes: ChangeItem[]
+  promoted: boolean
+  is_effective: boolean
+  current_version_label: string
+  current_version_no: number | null
 }

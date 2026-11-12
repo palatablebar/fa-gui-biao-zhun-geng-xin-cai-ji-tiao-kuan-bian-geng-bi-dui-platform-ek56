@@ -1,5 +1,5 @@
 import http from './http'
-import type { ChangeItem, Industry, PublishedGroup } from '../types/domain'
+import type { ChangeItem, Industry, PublishedGroup, PublishResult } from '../types/domain'
 
 export async function fetchPendingChanges(limit = 50): Promise<{ items: ChangeItem[]; total: number }> {
   const { data } = await http.get('/changes/pending', { params: { limit } })
@@ -14,10 +14,7 @@ export async function confirmChange(
   return data
 }
 
-export async function publishRun(
-  runId: string,
-  publishNote: string,
-): Promise<{ run: unknown; published_changes: ChangeItem[] }> {
+export async function publishRun(runId: string, publishNote: string): Promise<PublishResult> {
   const { data } = await http.post(`/diffs/${runId}/publish`, { publish_note: publishNote })
   return data
 }
