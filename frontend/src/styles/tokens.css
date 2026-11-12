@@ -1,0 +1,30 @@
+/* lawdelta design tokens — letterpress / codex binding.
+   米白纸 + 深棕墨 + 朱红印章；所有具体颜色只在本文件出现。 */
+:root {
+  --paper: oklch(94.2% 0.016 82);
+  --paper-2: oklch(97% 0.009 85);
+  --paper-3: oklch(89.4% 0.022 80);
+  --paper-4: oklch(85% 0.028 78);
+
+  --ink: oklch(27% 0.03 52);
+  --ink-soft: oklch(42% 0.028 52);
+  --ink-faint: oklch(58% 0.024 58);
+
+  --rule: oklch(66% 0.035 72);
+  --rule-soft: oklch(80% 0.024 78);
+
+  --seal: oklch(48% 0.155 28);
+  --seal-deep: oklch(40% 0.14 28);
+  --ochre: oklch(60% 0.1 76);
+  --moss: oklch(45% 0.06 148);
+  --indigo: oklch(40% 0.055 256);
+  --gilt: oklch(70% 0.08 85);
+
+  --serif: 'Noto Serif SC', 'Songti SC', 'STSong', 'SimSun', Georgia, serif;
+  --sans: 'Source Sans 3', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+
+  --rail: 244px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --hair: 1px solid var(--rule-soft);
+  --double: 3px double var(--rule);
+}
